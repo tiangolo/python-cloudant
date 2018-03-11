@@ -608,6 +608,80 @@ class CouchDatabase(dict):
         else:
             raise KeyError(key)
 
+    def __contains__(self, key):
+        """
+        Overrides dictionary __contains__ behavior to check if a document
+        by key exists in the current cached or remote database.
+
+        This allows using checks like
+
+        .. code-block:: python
+
+            if key in database:
+                doc = database[key]
+                # Do something with doc
+
+        :param str key: Document id used to check if it exists in the database.
+
+        :returns: A boolean, True if the document exists in the local or remote
+            database. False otherwise.
+        """
+        if key in list(self.keys()):
+            return True
+        if key.startswith('_design/'):
+            doc = DesignDocument(self, key)
+        else:
+            doc = Document(self, key)
+        return doc.exists()
+
+    def get(self, key, default=None):
+        """
+        Overrides dictionary ``get`` behavior to return a document
+        by key if exists in the current cached or remote database.
+
+        If the document instance does not exist locally, then a remote request
+        is made and the document is subsequently added to the local cache and
+        returned to the caller.
+
+        If the document instance already exists locally then it is returned and
+        a remote request is not performed.
+
+        If the document doesn't exist, ``default`` will be returned. A KeyError
+        won't be raised.
+
+        This allows retrieving a document by key or a default value. Like:
+
+        .. code-block:: python
+
+            doc = database.get(key)
+            if not doc:
+                # There is no doc, but no KeyError
+
+
+
+        :param str key: Document id used to retrieve the document from the
+            database.
+        
+        :param default: Default value to get if there is no document 
+            by that key.
+
+        :returns: A Document or DesignDocument object depending on the
+            specified document id (key) or the value ``default``, which is
+            ``None`` by default.
+        """
+        if key in list(self.keys()):
+            return super(CouchDatabase, self).__getitem__(key)
+        if key.startswith('_design/'):
+            doc = DesignDocument(self, key)
+        else:
+            doc = Document(self, key)
+        if doc.exists():
+            doc.fetch()
+            super(CouchDatabase, self).__setitem__(key, doc)
+            return doc
+        else:
+            return default
+
     def __iter__(self, remote=True):
         """
         Overrides dictionary __iter__ behavior to provide iterable Document
