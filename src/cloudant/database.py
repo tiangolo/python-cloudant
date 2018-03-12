@@ -608,6 +608,32 @@ class CouchDatabase(dict):
         else:
             raise KeyError(key)
 
+    def __contains__(self, key):
+        """
+        Overrides dictionary __contains__ behavior to check if a document
+        by key exists in the current cached or remote database.
+
+        This allows using checks like
+
+        .. code-block:: python
+
+            if key in database:
+                doc = database[key]
+                # Do something with doc
+
+        :param str key: Document id used to check if it exists in the database.
+
+        :returns: A boolean, True if the document exists in the local or remote
+            database. False otherwise.
+        """
+        if key in list(self.keys()):
+            return True
+        if key.startswith('_design/'):
+            doc = DesignDocument(self, key)
+        else:
+            doc = Document(self, key)
+        return doc.exists()
+
     def __iter__(self, remote=True):
         """
         Overrides dictionary __iter__ behavior to provide iterable Document
