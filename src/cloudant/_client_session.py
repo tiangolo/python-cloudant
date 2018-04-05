@@ -194,8 +194,8 @@ class CookieSession(ClientSession):
 
         logging.error('resp.status_code')
         logging.error(resp.status_code)
-        logging.error('resp.text()')
-        logging.error(resp.text())
+        logging.error('resp.text')
+        logging.error(resp.text)
         logging.error('self.is_users_db_url(url)')
         logging.error(self.is_users_db_url(url))
 
