@@ -125,9 +125,9 @@ class ClientSession(Session):
         users_db_url = url_join(server_url, '_users')
         logging.error('users_db_url')
         logging.error(users_db_url)
-        logging.error('url in users_db_url')
-        logging.error(url in users_db_url)
-        return url in users_db_url
+        logging.error('users_db_url in url')
+        logging.error(users_db_url in url)
+        return users_db_url in url
 
 
 class BasicSession(ClientSession):
@@ -192,6 +192,13 @@ class CookieSession(ClientSession):
         """
         resp = super(CookieSession, self).request(method, url, **kwargs)
 
+        logging.error('resp.status_code')
+        logging.error(resp.status_code)
+        logging.error('resp.text()')
+        logging.error(resp.text())
+        logging.error('self.is_users_db_url(url)')
+        logging.error(self.is_users_db_url(url))
+
         if not self._auto_renew:
             return resp
 
@@ -200,6 +207,8 @@ class CookieSession(ClientSession):
             resp.json().get('error') == 'credentials_expired',
             resp.status_code == 401
         ))
+
+
 
         can_be_user_db_expired = (
             resp.status_code == 404 and
