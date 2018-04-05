@@ -19,6 +19,8 @@ import base64
 import json
 import os
 
+import logging
+
 from requests import RequestException, Session
 
 from ._2to3 import bytes_, unicode_, url_join
@@ -110,15 +112,21 @@ class ClientSession(Session):
 
         :param str url: Requested URL to check.
         """
-        print('url', url)
-        print('_session_url', self._session_url)
+        logging.error('url')
+        logging.error(url)
+        logging.error('_session_url')
+        logging.error(self._session_url)
         server_url_parts = self._session_url.split('/')[:-1]  # Without the session path
-        print('server_url_parts', server_url_parts)
+        logging.error('server_url_parts')
+        logging.error(server_url_parts)
         server_url = '/'.join(server_url_parts)
-        print('server_url', server_url)
+        logging.error('server_url')
+        logging.error(server_url)
         users_db_url = url_join(server_url, '_users')
-        print('users_db_url', users_db_url)
-        print('url in users_db_url', url in users_db_url)
+        logging.error('users_db_url')
+        logging.error(users_db_url)
+        logging.error('url in users_db_url')
+        logging.error(url in users_db_url)
         return url in users_db_url
 
 
